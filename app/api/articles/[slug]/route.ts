@@ -65,6 +65,7 @@ export async function POST(request: Request) {
       }
      });
   } catch (error) {
+    alert(error)
     console.error("Error saving article:", error);
     return new Response("Error saving article", { status: 500 });
   }
