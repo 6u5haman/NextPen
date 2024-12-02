@@ -39,25 +39,29 @@ export async function GET(request: Request) {
   }
 }
 
-// Updated POST function
-export async function POST(request: Request) {
+
+export async function POST(request) {
   try {
     const session = await getServerSession();
+
     if (!session) {
       return new Response("Unauthorized", { status: 401 });
     }
+
     const url = new URL(request.url);
     const slug = url.pathname.split("/").pop();
     const { content } = await request.json();
-    const filePath = path.join(process.cwd(), "articles", `${slug}.md`);
+
+    if (!slug || !content) {
+      return new Response("Slug and content are required", { status: 400 });
+    }
+
+    const filePath = path.join("/tmp", `${slug}.md`);
     await fs.writeFile(filePath, content, "utf-8");
-    return new Response("Article saved", { status: 200, 
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      }
-     });
+
+    console.log(`File written to temporary directory: ${filePath}`);
+
+    return new Response("Article saved to temporary directory", { status: 200 });
   } catch (error) {
     console.error("Error saving article:", error);
     return new Response("Error saving article", { status: 500 });
